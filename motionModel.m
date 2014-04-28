@@ -47,6 +47,8 @@ function [state_out, observed_map, flags] = motionModel(params, state_in, action
 %*****************************
 % Determine New State
 %*****************************
+
+precision = 0.00001;
     
 if (action == -2)    % handle reverse motion
     
@@ -82,8 +84,8 @@ else
     
     R = params.r_radius*r_dTheta;    % distance Right wheel traveled
     L = params.l_radius*l_dTheta;    % distance Left wheel traveled
-    
-    if (R == L)
+
+    if (norm(R-L)<precision)
         % Car moved straight
         state_out.x = state_in.x + (R+L)/2*cos(state_in.theta);
         state_out.y = state_in.y + (R+L)/2*sin(state_in.theta);
