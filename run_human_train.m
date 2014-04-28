@@ -1,37 +1,49 @@
 %% -----------------------------------------------------------------------
 
-%*****************************
+%--------------------------------
 % Load map files and parameters
-%*****************************
+%--------------------------------
 
 %load map_1.mat;
-%load map_2.mat;
-load map_3.mat;
+load map_2.mat;
+%load map_3.mat;
 
 load_sim_params;
 
-%human run parameters
+
+%--------------------------------
+% Human Training Parameters
+%--------------------------------
 stop_simulation = 0;
 setappdata(0, 'stop_simulation', 0);
 setappdata(0, 'control', 0);
 setappdata(0, 'control_selected', 0);
 
-%human training data
-t = 1;
+%--------------------------------
+% Feature State
+%--------------------------------
+% A: square around car
+% B: car orientation
+% C: angle between orientation and path
+%--------------------------------
 distance_to_border = 4;
 square_size = 1 + 2*distance_to_border;
-feature_size = square_size*square_size + 1;
+feature_size = square_size*square_size + 1 + 1;
+
+%--------------------------------
+% Human Training Data
+%--------------------------------
+t = 1;
 states = zeros(1,feature_size);
 human_action = zeros(1);
 
-
+%--------------------------------
+% Display Parameters
+%--------------------------------
 scale = 10;
-
-% determines the size of the map and creates a meshgrid for display
-% purposes
+% determines the size of the map and creates a meshgrid for display purposes
 [N,M] = size(map_struct.seed_map);
 [x,y] = meshgrid(1:N, 1:M);
-
 DISPLAY_ON = 1; % 1 - turns display on, 0 - turns display off
 DISPLAY_TYPE = 1; % 0 - displays map as dots, 1 - displays map as blocks
 
@@ -54,7 +66,10 @@ for i = 1:length(map_struct.map_samples)
     % loop until maxCount has been reached or goal is found
     while (state.moveCount < params.max_moveCount && flags ~= 2)
         
-        %get current state (features)
+        %--------------------------------
+        % Get Current Features
+        %--------------------------------
+        %square
         current_state = zeros(1,feature_size);
         x_cur = round(state.x); 
         y_cur = round(state.y);
@@ -69,9 +84,23 @@ for i = 1:length(map_struct.map_samples)
         pos_x_min = center-(x_cur-x_min);
         pos_x_max = center+(x_max-x_cur);
         observed_surrounding(pos_y_min:pos_y_max,pos_x_min:pos_x_max) = observed_map(y_min:y_max,x_min:x_max);
+        %orientation
         observed_theta = mod(state.theta,2*pi);
+        if(observed_theta < 0)
+            observed_theta = observed_theta + 2*pi;
+        end
+        %angle between orientation and path
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX TODO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        angle_orientation_path = 0;
+        angle_orientation_path = mod(angle_orientation_path, 2*pi);
+        if(angle_orientation_path < 0)
+            angle_orientation_path = angle_orientation_path + 2*pi;
+        end
+        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX TODO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         
-        % Get human action
+        %--------------------------------
+        % Get Human Action
+        %--------------------------------
         action_provided = getappdata(0, 'control_selected');
         
         while(action_provided == 0)   
@@ -85,12 +114,16 @@ for i = 1:length(map_struct.map_samples)
         disp(observed_surrounding);
         disp('------------------------------');
         
-        %store state + human action
-        states(t,:) = [reshape(observed_surrounding',1,numel(observed_surrounding)),observed_theta];
+        %--------------------------------
+        % Store State + Human Action
+        %--------------------------------
+        states(t,:) = [reshape(observed_surrounding',1,numel(observed_surrounding)),observed_theta,angle_orientation_path];
         human_action(t,1) = action;
         t = t + 1;
         
-        % Execute the action and update observed_map
+        %--------------------------------
+        % Execute Action and Update observed_map
+        %--------------------------------
         [state, observed_map, flags] = motionModel(params, state, action, observed_map, map_struct.map_samples{i}, goal);
 
         if (DISPLAY_ON)
@@ -101,11 +134,15 @@ for i = 1:length(map_struct.map_samples)
         %Break if user required
         stop_simulation = getappdata(0, 'stop_simulation');
         if (stop_simulation == 1)
-            disp('aaa');
             break;
         end
         
     end
-
+    
+    %Break if user required
+    if (stop_simulation == 1)
+        break;
+    end
     
 end
+
