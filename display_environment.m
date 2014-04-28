@@ -1,5 +1,5 @@
 %plot image
-figure(1);
+fig = figure(1);
 if (DISPLAY_TYPE)
     imshow(imresize(observed_map, scale, 'nearest'),'Border','tight');
 else
