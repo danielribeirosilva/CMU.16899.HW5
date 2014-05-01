@@ -4,8 +4,8 @@
 % Load map files and parameters
 %*****************************
 
-load map_1.mat;
-%load map_2.mat;
+% load map_1.mat;
+load map_2.mat;
 %load map_3.mat;
 
 load_sim_params;
