@@ -4,11 +4,13 @@
 % Load map files and parameters
 %--------------------------------
 
-%load map_1.mat;
-load map_2.mat;
+load map_1.mat;
+%load map_2.mat;
 %load map_3.mat;
 
 load_sim_params;
+
+load path_1a.mat;
 
 
 %--------------------------------
@@ -62,6 +64,9 @@ for i = 1:length(map_struct.map_samples)
         set(fig,'KeyPressFcn',@keys_listener);
     end
     
+    %collect points for path
+    %[x_path,y_path] = ginput;
+    
 
     % loop until maxCount has been reached or goal is found
     while (state.moveCount < params.max_moveCount && flags ~= 2)
@@ -99,7 +104,7 @@ for i = 1:length(map_struct.map_samples)
         %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX TODO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         
         %--------------------------------
-        % Get Human Action
+        % Get Human Action for current state
         %--------------------------------
         action_provided = getappdata(0, 'control_selected');
         

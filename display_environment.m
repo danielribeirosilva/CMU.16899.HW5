@@ -13,6 +13,9 @@ line(scale*[state.border(1,:); state.border(1,[2:end 1])], scale*[state.border(2
 plot(scale*state.x,scale*state.y,'b.', 'MarkerSize', 2*scale);
 line(scale*[state.x,state.x+params.length/2*cos(state.theta)]',scale*[state.y,state.y+params.length/2*sin(state.theta)]','Color','Blue', 'LineSmoothing', 'on');
 
+%plot path
+display_path;
+
 axis equal;
 axis([0 500 0 500]);
 axis off;
