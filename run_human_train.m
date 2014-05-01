@@ -4,13 +4,17 @@
 % Load map files and parameters
 %--------------------------------
 
-load map_1.mat;
-%load map_2.mat;
-%load map_3.mat;
+load all_maps/map_1.mat;
+%load all_maps/map_2.mat;
+%load all_maps/map_3.mat;
+%load all_maps/map_4.mat;
+%load all_maps/map_5.mat;
+%load all_maps/map_6.mat;
+%load all_maps/map_7.mat;
 
 load_sim_params;
 
-load path_1a.mat;
+
 
 
 %--------------------------------
@@ -54,9 +58,12 @@ DISPLAY_TYPE = 1; % 0 - displays map as dots, 1 - displays map as blocks
 for i = 1:length(map_struct.map_samples) 
 
     % Initialize the starting car state and observed map
-    % observed_map is set to seed map, and the bridge information will be
-    % updated once the car is within params.observation_radius
     initialize_state;
+    
+    % Get path 
+    load path_1a.mat;
+    current_path_idx = 1;
+    
 
     % display the initial state
     if (DISPLAY_ON)
@@ -74,7 +81,7 @@ for i = 1:length(map_struct.map_samples)
         %--------------------------------
         % Get Current Features
         %--------------------------------
-        %square
+        %square around car
         current_state = zeros(1,feature_size);
         x_cur = round(state.x); 
         y_cur = round(state.y);
@@ -95,13 +102,11 @@ for i = 1:length(map_struct.map_samples)
             observed_theta = observed_theta + 2*pi;
         end
         %angle between orientation and path
-        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX TODO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        angle_orientation_path = 0;
-        angle_orientation_path = mod(angle_orientation_path, 2*pi);
-        if(angle_orientation_path < 0)
-            angle_orientation_path = angle_orientation_path + 2*pi;
-        end
-        %XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX TODO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        current_path_vector = [path.x(current_path_idx+1) path.y(current_path_idx+1)]-[path.x(current_path_idx) path.y(current_path_idx)];
+        reference_vector = [1 0];
+        path_orientation = acos( dot(current_path_vector, reference_vector) / (norm(current_path_vector)*norm(reference_vector)) );
+        angle_difference = path_orientation - observed_theta;
+        
         
         %--------------------------------
         % Get Human Action for current state
@@ -116,13 +121,14 @@ for i = 1:length(map_struct.map_samples)
         action = getappdata(0, 'control');
         setappdata(0, 'control_selected', 0);
         
-        disp(observed_surrounding);
+        %disp(observed_surrounding);
         disp('------------------------------');
         
         %--------------------------------
         % Store State + Human Action
         %--------------------------------
-        states(t,:) = [reshape(observed_surrounding',1,numel(observed_surrounding)),observed_theta,angle_orientation_path];
+        row_observed_surrounding = reshape(observed_surrounding',1,numel(observed_surrounding));
+        states(t,:) = [row_observed_surrounding,observed_theta,angle_difference];
         human_action(t,1) = action;
         t = t + 1;
         
@@ -135,6 +141,16 @@ for i = 1:length(map_struct.map_samples)
             display_environment;
         end
 
+        
+        %--------------------------------
+        % update current path segment if necessary
+        %--------------------------------
+        distance_to_end = norm( [state.x state.y] - [path.x(current_path_idx+1) path.y(current_path_idx+1)]  );
+        if (distance_to_end < 2.5 && current_path_idx < size(path.x,1))
+            current_path_idx = current_path_idx + 1;
+        end
+        
+        
         
         %Break if user required
         stop_simulation = getappdata(0, 'stop_simulation');
