@@ -8,9 +8,12 @@ ff = inf*ones([M, N]);
 ff(map == 0) = -1;
 
 Q = {};
-Q{1} = goal;
-ff(goal(1), goal(2))= 0;
 
+% ::Note: the order of y and x are flipped
+Q{1} = [goal.y goal.x];
+ff(goal.y, goal.x)= 0;
+
+% Function: check_boarder
 checkbr = @(r,c) r>0 && r<M && c>0 && c<N;
 
 while(~isempty(Q))

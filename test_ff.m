@@ -1,7 +1,7 @@
 load map_1.mat;
 
-map = map_struct.map_samples{1};
+map = map_struct.map_samples{2};
 
-goal = [map_struct.goal.y, map_struct.goal.x];
-
-ff = floodfill(map, goal);
+tic
+ff = floodfill(map, map_struct.goal);
+toc
