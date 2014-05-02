@@ -9,7 +9,6 @@
 %               .d_theta_reverse - d_theta for both wheels going in reverse [rad]
 %               .max_moveCount - state.moveCount gets this value in case of
 %               collision
-global params;
 
 params.length = 3;
 params.width = 2;

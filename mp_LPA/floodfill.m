@@ -1,11 +1,25 @@
-function [ff] = floodfill(map, goal)
+function [h_map] = floodfill(map, goal)
 % A crude inplementation of breadth first floodfill as heuristic
 % used for fine-grained A* serach
+
+% Function: check_obstacle
+ob1 = @(r,c) numel(find(map(r:r+1, c:c+1)==0))==0;
+ob2 = @(r,c) numel(find(map(r:r+1, c-1:c)==0))==0;
+ob3 = @(r,c) numel(find(map(r-1:r, c:c+1)==0))==0;
+ob4 = @(r,c) numel(find(map(r-1:r, c-1:c)==0))==0;
+
+h_map = zeros([size(map), 4]);
+h_map(:,:, 1) = mapfill(map, goal, ob1);
+h_map(:,:, 2)  = mapfill(map, goal, ob2);
+h_map(:,:, 3)  = mapfill(map, goal, ob3);
+h_map(:,:, 4)  = mapfill(map, goal, ob4);
+h_map = min(h_map, [], 3);
+end
+
+function [ff] = mapfill(map, goal, checkob)
 [M, N ] = size(map);
 
 ff = inf*ones([M, N]);
-
-ff(map == 0) = -1;
 
 Q = {};
 
@@ -25,7 +39,7 @@ while(~isempty(Q))
     
     % Upper left
     r = elm(1)-1; c = elm(2)-1;
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
@@ -34,7 +48,7 @@ while(~isempty(Q))
     
     % Up
     r = elm(1)-1; c = elm(2);
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
@@ -43,7 +57,7 @@ while(~isempty(Q))
     
     % Upper Right
     r = elm(1)-1; c = elm(2)+1;
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
@@ -52,7 +66,7 @@ while(~isempty(Q))
     
     % Left
     r = elm(1); c = elm(2)-1;
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
@@ -61,7 +75,7 @@ while(~isempty(Q))
     
     % Right
     r = elm(1); c = elm(2)+1;
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
@@ -70,7 +84,7 @@ while(~isempty(Q))
     
     % Lower left
     r = elm(1)+1; c = elm(2)-1;
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
@@ -79,7 +93,7 @@ while(~isempty(Q))
     
     % Down
     r = elm(1)+1; c = elm(2);
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
@@ -88,12 +102,11 @@ while(~isempty(Q))
     
     % Lowerright
     r = elm(1)+1; c = elm(2)+1;
-    if (checkbr(r, c))
+    if (checkbr(r, c) && checkob(r,c))
        if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
     end
 end
-
 end
