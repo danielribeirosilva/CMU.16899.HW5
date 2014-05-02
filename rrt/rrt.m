@@ -3,12 +3,17 @@ function [num_node] = rrt(s_start, s_goal, map)
 %
 %
 max_node = 10000;
-p_list = zeros(max_node, 1);
-u_list = zeros(max_node, 1);
-s_list = zeros(max_node, 3);
+% Basic Data structure
+p_list = zeros(max_node, 1);  % parent list  pi(x) = parent(x)
+u_list = zeros(max_node, 1);  % control list pi(x), u(x) -> x
+s_list = zeros(max_node, 3);  % state list   s(x) = x, y, theta
 
-goal_bias = 0.05;
-rng(1173);
+% Augmented data structure
+i_list = int32(ones(max_node,1));
+c_list = zeros(max_node, 4);
+
+goal_bias = 0.10;
+rng(0);%1173);
 
 [ri, ci] = find(map==1);
 numOpenCell = numel(ri);
@@ -30,10 +35,11 @@ while(num_node < max_node)
    end
    
    % Find the nearest node in the tree
-   [idx, ~] = knnsearch(s_list(1:num_node,[1,2]), q_rand, 'K', k);
+   idx_list = find(i_list(1:num_node) ==1);
+   [idx, ~] = knnsearch(s_list(idx_list,[1,2]), q_rand, 'K', 1);
    
    % Steer the q_near towards q_rand
-   [q_new, u, flag] = steer(s_list(idx(1), :), q_rand);
+   [q_new, u, flag, c] = steer(s_list(idx(1), :), q_rand);
    
    % If such steer is successful, add it to the tree
    if(flag)
@@ -42,22 +48,27 @@ while(num_node < max_node)
       u_list(num_node) = u;
       p_list(num_node) = idx(1);
       
-      
-   if (num_node > 1)
-      scale = 10;
-      p_state = s_list(p_list(num_node),:);
-      line(scale*[p_state(1), q_new(1)], scale*[p_state(2), q_new(2)], 'Color','Red', 'LineSmoothing', 'on');
-      if(mod(num_node, 100)==0)
-         pause(0.05);
+      if (num_node > 1)
+         scale = 10;
+         p_state = s_list(p_list(num_node),:);
+         line(scale*[p_state(1), q_new(1)], scale*[p_state(2), q_new(2)], 'Color','Red', 'LineSmoothing', 'on');
+         if(mod(num_node, 100)==0)
+            pause(0.05);
+            fprintf('%d nodes grown\n', num_node);
+         end
+      end  
+   else
+      % If a node has been expanded for all options, don't use it again.
+      c_list(idx(1), c) = 1;
+      if (sum(c_list(idx(1), :)) == 4)
+         i_list(idx(1)) = 0;
       end
    end
-   
-   end
 end
 
 end
 
-function [q_new, u, flag] = steer(n_state, r_state)
+function [q_new, u, flag, c] = steer(n_state, r_state)
 global params;
 
 v1 = [cos(n_state(3)), sin(n_state(3))];
@@ -66,34 +77,40 @@ nv2 = norm(v2);
 
 % If r_s is too close to n_s, then quit
 if (nv2 < 1e-3)
-   flag = false;
-   q_new = [0 0 0];
    u = 0;
-   return;
-end
-v2 = v2/nv2;
-
-angle = atan2(v2(2), v2(1)) - atan2(v1(2), v1(1));
-if (angle > pi)
-   angle = angle - 2*pi;
-elseif(angle < -pi)
-   angle = angle + 2*pi;
-end
-
-if (angle > pi/2 || angle < -pi/2)
-   u = -2;
+   c = 1;
 else
-   u = angle/params.d_theta_max_dev;
-   if (u > 1.0)
-      u = 1.0;
-   elseif (u < -1.0)
-      u = -1.0;
+   v2 = v2/nv2;
+   
+   angle = atan2(v2(2), v2(1)) - atan2(v1(2), v1(1));
+   if (angle > pi)
+      angle = angle - 2*pi;
+   elseif(angle < -pi)
+      angle = angle + 2*pi;
    end
-end   
+   
+   if (angle > pi/2 || angle < -pi/2)
+      u = -2; c = 4;
+   else
+      u = angle/params.d_theta_max_dev;
+      if (u > 1.0)
+         u = 1.0; c =2;
+      elseif (u < -1.0)
+         u = -1.0; c = 3;
+      else
+         u = 0; c = 1;
+      end
+   end
+end
 
-q_new = robot_motion(n_state, u);
+for i=1:5
+   q_new = robot_motion(n_state, u);
+   flag = checkNoCollision(q_new);
+   if (~flag)
+      return;
+   end
+end
 
-flag = checkNoCollision(q_new);
 end
 
 function [state_out] = robot_motion(state_in, action)
@@ -175,6 +192,8 @@ else
    safe = true;
 end
 end
+
+
 
 
 

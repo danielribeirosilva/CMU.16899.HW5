@@ -10,8 +10,8 @@ ff(map == 0) = -1;
 Q = {};
 
 % ::Note: the order of y and x are flipped
-Q{1} = [goal.y goal.x];
-ff(goal.y, goal.x)= 0;
+Q{1} = [goal(2) goal(1)];
+ff(goal(2), goal(1))= 0;
 
 % Function: check_boarder
 checkbr = @(r,c) r>0 && r<M && c>0 && c<N;
@@ -26,8 +26,8 @@ while(~isempty(Q))
     % Upper left
     r = elm(1)-1; c = elm(2)-1;
     if (checkbr(r, c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
-          ff(r, c) = value + 1;
+       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+          ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
     end
@@ -44,8 +44,8 @@ while(~isempty(Q))
     % Upper Right
     r = elm(1)-1; c = elm(2)+1;
     if (checkbr(r, c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
-          ff(r, c) = value + 1;
+       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+          ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
     end
@@ -71,8 +71,8 @@ while(~isempty(Q))
     % Lower left
     r = elm(1)+1; c = elm(2)-1;
     if (checkbr(r, c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
-          ff(r, c) = value + 1;
+       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+          ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
     end
@@ -89,8 +89,8 @@ while(~isempty(Q))
     % Lowerright
     r = elm(1)+1; c = elm(2)+1;
     if (checkbr(r, c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
-          ff(r, c) = value + 1;
+       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+          ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
     end
