@@ -1,5 +1,7 @@
 %% -----------------------------------------------------------------------
 
+clearvars;clc;
+
 %--------------------------------
 % Load map files and parameters
 %--------------------------------
@@ -54,6 +56,12 @@ DISPLAY_ON = 1; % 1 - turns display on, 0 - turns display off
 DISPLAY_TYPE = 1; % 0 - displays map as dots, 1 - displays map as blocks
 
 
+%--------------------------------
+% Train Existing Model
+%--------------------------------
+model = train_model();
+
+
 % Loop through each map sample
 for i = 1:length(map_struct.map_samples) 
 
@@ -74,9 +82,7 @@ for i = 1:length(map_struct.map_samples)
     
     %collect points for path
     %[x_path,y_path] = ginput;
-    %path.x = x_path/scale;
-    %path.y = y_path/scale;
-    %save('path_1b.mat','path');
+    
 
     % loop until maxCount has been reached or goal is found
     while (state.moveCount < params.max_moveCount && flags ~= 2)
@@ -88,6 +94,18 @@ for i = 1:length(map_struct.map_samples)
         
         
         %--------------------------------
+        % Get action from model
+        %--------------------------------
+        model_action = my_current_state*model;    
+        if(model_action < -1.5)
+            model_action = -2;
+        elseif (model_action < -1)
+            model_action = -1;
+        elseif (model_action > 1)
+            model_action = 1;
+        end
+        
+        %--------------------------------
         % Get Human Action for current state
         %--------------------------------
         action_provided = getappdata(0, 'control_selected');
@@ -97,7 +115,7 @@ for i = 1:length(map_struct.map_samples)
             pause;
             action_provided = getappdata(0, 'control_selected');
         end
-        action = getappdata(0, 'control');
+        human_action = getappdata(0, 'control');
         setappdata(0, 'control_selected', 0);
         
         %disp(observed_surrounding);
@@ -107,13 +125,14 @@ for i = 1:length(map_struct.map_samples)
         % Store State + Human Action
         %--------------------------------
         human_training.states(t,:) = my_current_state;
-        human_training.human_action(t,1) = action;
+        human_training.human_action(t,1) = human_action;
         t = t + 1;
         
         
         %--------------------------------
-        % Execute Action and Update observed_map
+        % Execute Action from model 
         %--------------------------------
+        action = model_action;
         [state, observed_map, flags] = motionModel(params, state, action, observed_map, map_struct.map_samples{i}, goal);
 
         if (DISPLAY_ON)
@@ -143,7 +162,7 @@ for i = 1:length(map_struct.map_samples)
         
     end
     
-    %save('human_training/human_training_XXX.mat','human_training');
+    %save('human_training/human_supervision_XXX.mat','human_training');
     
     %Break if user required
     if (stop_simulation == 1)
