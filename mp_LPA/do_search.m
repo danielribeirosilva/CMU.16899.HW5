@@ -108,6 +108,8 @@ pq_delete(pq);
 % else return a path to max distant state
 if (goal_reached)
    cidx = idx;  flag = true;
+   pause(0.05);
+   fprintf('%d nodes grown, goal reached.\n', num_node);
 else
    [~, cidx] = max(g_list); flag = false; 
 end
@@ -249,7 +251,7 @@ end
          state_out(3) = state_in(3);
          
          if(checkNoCollision(state_out))
-            state_in = state_out; dg= dg+0.05; c = c+1;
+            state_in = state_out; dg= dg+0.10; c = c+1;
          else
             state_out = state_in; return;
          end
