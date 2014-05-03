@@ -1,12 +1,12 @@
-clear all;
-load map_3.mat;
+clear
+load('maps/map_5.mat');
 % Test cases:
 % 3_20
 % 1_1
 % 2_1
 
 % dbstop if error;
-map = map_struct.map_samples{20};
+map = map_struct.map_samples{1};
 
 DISPLAY_TYPE = 0;
 load_sim_params;

@@ -70,30 +70,22 @@ while(pq_size(pq)>0 && num_node < max_nodes-3)
    % Expand this node: [0 1 -1 -2]
     if(u_list(idx) ~= -2)
       [s_out, dg, flag] = reduced_ForwardMotion(s_state);
-      if (flag>0)
-         add_new_node(0, flag);
-      end
+      try_add_new_node(0, flag);
     end
    
     if (u_list(idx) ~= 1)
       [s_out, dg, flag] = reduced_LeftMotion(s_state);
-      if (flag>0)
-         add_new_node(-1, flag);
-      end
+      try_add_new_node(-1, flag);
     end
    
     if (u_list(idx) ~= -1)
       [s_out, dg, flag] = reduced_RightMotion(s_state);
-      if (flag>0)
-         add_new_node(1, flag);
-      end
+      try_add_new_node(1, flag);
     end
    
     if(u_list(idx) ~= 0)
       [s_out, dg, flag] = reduced_BackupMotion(s_state);
-      if (flag>0)
-         add_new_node(-2, flag);
-      end
+      try_add_new_node(-2, flag);
     end
 
    % Debug show expansion:
@@ -141,7 +133,10 @@ end
 
 %% End of Code Section
 % On to functions
-   function [] = add_new_node(u, c)
+   function [] = try_add_new_node(u, c)
+      if (flag < 3)
+          return
+      end
       h = interp2(h_map, s_out(1), s_out(2), 'linear'); 
       if (isinf(h))
          return;
