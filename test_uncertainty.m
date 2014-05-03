@@ -40,11 +40,13 @@ while (i<numel(path))
       break;
    end
    
-   if (~isequal(updated_map, observed_map))
+   idx = find(updated_map~= observed_map);
+   observed_map = updated_map;
+   % Only replan if we see a bridge is actually blocked.
+   if ( any(updated_map(idx)==0))
        fprintf('Map updates, replan!\n');
        display_environment;
        % Replan:
-       observed_map = updated_map;
        s_start = [state.x state.y state.theta];
        [path, flag] = aastar(s_start, s_goal, observed_map, params, 5);
        if (~flag)
