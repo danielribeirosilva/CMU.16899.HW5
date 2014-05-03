@@ -40,7 +40,7 @@ while(~isempty(Q))
     % Upper left
     r = elm(1)-1; c = elm(2)-1;
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+       if (map(r, c)>0 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
@@ -49,7 +49,7 @@ while(~isempty(Q))
     % Up
     r = elm(1)-1; c = elm(2);
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
+       if (map(r, c)>0 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
        end
@@ -58,7 +58,7 @@ while(~isempty(Q))
     % Upper Right
     r = elm(1)-1; c = elm(2)+1;
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+       if (map(r, c)>0 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
@@ -67,7 +67,7 @@ while(~isempty(Q))
     % Left
     r = elm(1); c = elm(2)-1;
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
+       if (map(r, c)>0 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
        end
@@ -76,7 +76,7 @@ while(~isempty(Q))
     % Right
     r = elm(1); c = elm(2)+1;
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
+       if (map(r, c)>0 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
        end
@@ -85,7 +85,7 @@ while(~isempty(Q))
     % Lower left
     r = elm(1)+1; c = elm(2)-1;
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+       if (map(r, c)>0 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
@@ -94,7 +94,7 @@ while(~isempty(Q))
     % Down
     r = elm(1)+1; c = elm(2);
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+1))
+       if (map(r, c)>0 && ff(r, c)>(value+1))
           ff(r, c) = value + 1;
           Q{end+1} = [r, c];
        end
@@ -103,7 +103,7 @@ while(~isempty(Q))
     % Lowerright
     r = elm(1)+1; c = elm(2)+1;
     if (checkbr(r, c) && checkob(r,c))
-       if (map(r, c)==1 && ff(r, c)>(value+sqrt(2)))
+       if (map(r, c)>0 && ff(r, c)>(value+sqrt(2)))
           ff(r, c) = value + sqrt(2);
           Q{end+1} = [r, c];
        end
