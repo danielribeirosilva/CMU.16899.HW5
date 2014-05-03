@@ -9,7 +9,7 @@ if (nargin < 5 )
 end
 
 [path, state_out, flag] = do_search(s_start, s_goal, plan_map, params);
-while (~flag || n_restart > 1)
+while (~flag && n_restart > 1)
    [path2, state_out, flag]=do_search(state_out, s_goal, plan_map, params);
    path = [path; path2];
    n_restart = n_restart-1;
