@@ -4,7 +4,7 @@ function [u_path, state_out, flag] = do_search(s_start, s_goal, map, params)
 %    - s_goal
 %    - map
 %    
-scale = 10;
+global scale;
 age_threshold = 5;
 max_nodes = 100000;
 

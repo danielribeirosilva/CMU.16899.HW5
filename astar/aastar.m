@@ -1,4 +1,7 @@
 function [path, flag] = aastar(s_start, s_goal, plan_map, params, n_restart)
+% Wrapper function to call do_search which does all the work.
+%
+% In case it gets stuck, it is safer to restart a few times
 
 if (nargin < 4)
    error('Needs at least 4 input parameters\n');
